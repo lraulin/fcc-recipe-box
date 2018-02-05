@@ -14,6 +14,28 @@ import {
 class App extends Component {
   state = {
     recipes: [{recipeName: "", ingredients: []}],
+    examples: [{
+      recipeName: 'Invisibility',
+      ingredients: ['bittergreen petals', 'diamond powder']
+    }, {
+      recipeName: 'Cat (for witchers only!)',
+      ingredients: ['1 rebis', '2 quebrith']
+    }, {
+      recipeName: 'Restore Health',
+      ingredients: ['marshmerrow', 'wickwheat', 'resin']
+    }, {
+      recipeName: 'Restore Fatigue',
+      ingredients: ['scrib jelly (or hound meat)', 'scuttle']
+    }, {
+      recipeName: 'Cure Common Diseases',
+      ingredients: ['grave dust', 'green lichens']
+    }, {
+      recipeName: 'Water Breathing',
+      ingredients: ['luminous russula', 'hackle-lo leaves']
+    }, {
+      recipeName: 'Levitate',
+      ingredients: ['coda flowers', 'cliff racer plume or trauma root']
+    }],
     showAdd: false,
     showeEdit: false,
     currentIndex: 0,
@@ -73,35 +95,14 @@ class App extends Component {
 
   loadExamples() {
     const oldList = this.state.recipes.slice();
-    const examples = [{
-      recipeName: 'Invisibility',
-      ingredients: ['bittergreen petals', 'diamond powder']
-    }, {
-      recipeName: 'Cat (for witchers only!)',
-      ingredients: ['1 rebis', '2 quebrith']
-    }, {
-      recipeName: 'Restore Health',
-      ingredients: ['marshmerrow', 'wickwheat', 'resin']
-    }, {
-      recipeName: 'Restore Fatigue',
-      ingredients: ['scrib jelly (or hound meat)', 'scuttle']
-    }, {
-      recipeName: 'Cure Common Diseases',
-      ingredients: ['grave dust', 'green lichens']
-    }, {
-      recipeName: 'Water Breathing',
-      ingredients: ['luminous russula', 'hackle-lo leaves']
-    }, {
-      recipeName: 'Levitate',
-      ingredients: ['coda flowers', 'cliff racer plume or trauma root']
-    }];
+    const examples = this.state.examples.slice();
     const recipes = oldList.concat(examples);
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({recipes});
   }
 
   componentDidMount() {
-    let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+    let recipes = JSON.parse(localStorage.getItem("recipes")) || this.state.examples.slice();
       //|| [{ recipeName: "", ingredients: [] }];
     this.setState({recipes});
   }
