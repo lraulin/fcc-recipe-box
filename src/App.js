@@ -99,6 +99,7 @@ class App extends Component {
     const recipes = oldList.concat(examples);
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({recipes});
+    firebase.database().ref('recipes/').push(recipes);
   }
 
   componentDidMount() {
