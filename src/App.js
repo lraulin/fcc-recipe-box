@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {db} from './firebase'
 import './App.css';
 import {
   Panel,
@@ -99,7 +100,6 @@ class App extends Component {
     const recipes = oldList.concat(examples);
     localStorage.setItem("recipes", JSON.stringify(recipes));
     this.setState({recipes});
-    firebase.database().ref('recipes/').push(recipes);
   }
 
   componentDidMount() {
