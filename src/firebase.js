@@ -1,5 +1,5 @@
 import * as firebase from "firebase";
-import { apiKey, messagingSenderId } from "../public/secrets.js";
+import { apiKey, messagingSenderId } from "./secrets.js";
 
 const prodConfig = {};
 
@@ -12,7 +12,9 @@ const devConfig = {
   messagingSenderId
 };
 
-const config = process.env.NODE_ENV === "production" ? prodConfig : devConfig;
+// Let's keep using the test database for now!
+// const config = process.env.NODE_ENV === "production" ? prodConfig : devConfig;
+const config = devConfig;
 
 if (!firebase.apps.length) {
   firebase.initializeApp(config);

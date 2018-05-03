@@ -14,29 +14,7 @@ import {
 
 class App extends Component {
   state = {
-    recipes: [{recipeName: "", ingredients: []}],
-    examples: [{
-      recipeName: 'Invisibility',
-      ingredients: ['bittergreen petals', 'diamond powder']
-    }, {
-      recipeName: 'Cat (for witchers only!)',
-      ingredients: ['1 rebis', '2 quebrith']
-    }, {
-      recipeName: 'Restore Health',
-      ingredients: ['marshmerrow', 'wickwheat', 'resin']
-    }, {
-      recipeName: 'Restore Fatigue',
-      ingredients: ['scrib jelly (or hound meat)', 'scuttle']
-    }, {
-      recipeName: 'Cure Common Diseases',
-      ingredients: ['grave dust', 'green lichens']
-    }, {
-      recipeName: 'Water Breathing',
-      ingredients: ['luminous russula', 'hackle-lo leaves']
-    }, {
-      recipeName: 'Levitate',
-      ingredients: ['coda flowers', 'cliff racer plume or trauma root']
-    }],
+    recipes: [{recipeName:'', ingredients: []}],
     showAdd: false,
     showeEdit: false,
     currentIndex: 0,
@@ -47,10 +25,8 @@ class App extends Component {
   }
 
   deleteRecipe(index) {
-    let recipes = this.state.recipes.slice();
-    recipes.splice(index, 1);
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-    this.setState({recipes});
+    const recipeID = this.state.recipes[index].recipeID;
+    db.ref('recipes/').child(recipeID).remove();
   }
 
   updateNewRecipe(recipeName, ingredients) {
@@ -62,10 +38,8 @@ class App extends Component {
   }
 
   saveNewRecipe() {
-    let recipes = this.state.recipes.slice();
-    recipes.push(this.state.newestRecipe);
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-    this.setState({recipes});
+    db.ref('recipes/').push(this.state.newestRecipe);
+
   }
 
   submitNewRecipe() {
@@ -74,10 +48,10 @@ class App extends Component {
   }
 
   submitEditRecipe(index) {
-    let recipes = this.state.recipes.slice();
-    recipes[index] = this.state.newestRecipe;
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-    this.setState({recipes});
+    const recipeID = this.state.recipes[index].recipeID;
+    const recipeName = this.state.newestRecipe.recipeName;
+    const ingredients = this.state.newestRecipe.ingredients;
+    db.ref('recipes/').child(recipeID).update({ recipeName, ingredients })
     this.close();
   }
 
@@ -94,19 +68,21 @@ class App extends Component {
     this.setState({currentIndex});
   }
 
-  loadExamples() {
-    const oldList = this.state.recipes.slice();
-    const examples = this.state.examples.slice();
-    const recipes = oldList.concat(examples);
-    localStorage.setItem("recipes", JSON.stringify(recipes));
-    this.setState({recipes});
-  }
-
   componentDidMount() {
-    let recipes = JSON.parse(localStorage.getItem("recipes")) || this.state.examples.slice();
-      //|| [{ recipeName: "", ingredients: [] }];
-    this.setState({recipes});
+    console.log('mounted!');
+    db.ref('recipes/').on('value', snapshot=>{
+      const recipeData = snapshot.val();
+      if (recipeData) {
+        const recipes = Object.keys(recipeData).map(key=>{
+          const recipe = recipeData[key];
+          recipe.recipeID = key;
+          return recipe
+        });
+        this.setState({recipes});
+      }
+    });
   }
+  
 
   render() {
     const { recipes, newestRecipe, currentIndex } = this.state;
@@ -116,12 +92,12 @@ class App extends Component {
         {/* Recipes Accordion */}
         <PanelGroup accordion id="recipeAccordion">
           {recipes.map((recipe, index) =>(
-            <Panel eventKey={index} key={index}>
+            <Panel bsStyle="info" eventKey={index} key={index}>
               <Panel.Heading>
                 <Panel.Title toggle>{recipe.recipeName}</Panel.Title>
               </Panel.Heading>
               <Panel.Body collapsible>
-                <ul>
+                <ul className="list-unstyled" >
                 {recipe.ingredients.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -206,7 +182,6 @@ class App extends Component {
             Submit</Button>
         </Modal.Footer>
       </Modal>
-      <Button bsStyle="default" onClick={(event) => this.loadExamples()}>Load Examples</Button>
       <Button bsStyle="primary" onClick={(event) => this.open("showAdd", currentIndex)}>
         Add Recipe</Button>
     </div>
